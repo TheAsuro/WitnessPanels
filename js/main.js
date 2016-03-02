@@ -1,6 +1,6 @@
 // Initialize canvas
 var canvas = document.getElementById("canvas");
-var gl = canvas.getContext("experimental-webgl");
+var gl = canvas.getContext("webgl", { alpha: false });
 
 var drawQueue = [];
 
@@ -82,8 +82,8 @@ function createRectObject(vertId, fragId, x, y, width, height)
 		shader: shader,
 		texCoords: loadFloatArrayBuffer(shader, createTextureCoordArray(), "a_uv"),
 		worldCoords: loadFloatArrayBuffer(shader, createRectangleArray(x, y, width + x, height + y), "a_position"),
-		xPos: x,
-		yPos: y,
+		x: x,
+		y: y,
 		width: width,
 		height: height
 	}
@@ -103,21 +103,13 @@ function draw()
 
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 	}
-	
+
 	window.requestAnimationFrame(draw);
 }
 
 function initialize()
 {
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
-
-	// Initialize objects
-	var testCircle0 = createRectObject("vert", "frag-circle", 0, 0, 100, 100);
-	var testCircle1 = createRectObject("vert", "frag-circle", 100, 100, 100, 100);
-	var testCircle2 = createRectObject("vert", "frag-circle", 200, 200, 100, 100);
-
-	drawQueue = [testCircle0, testCircle1, testCircle2];
-
 	draw();
 }
 
