@@ -1,0 +1,8 @@
+#canvas {
+	display: block;
+}
+
+#canvasWrapper, #canvas {
+	margin-left: auto;
+	margin-right: auto;
+}
