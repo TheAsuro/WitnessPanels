@@ -5,6 +5,7 @@
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 
 	<script type="x-shader/x-vertex" id="vert">
+		uniform mediump vec2 u_resolution;
 		attribute vec2 a_position;
 		attribute vec2 a_uv;
 		varying mediump vec2 v_worldPos;
@@ -12,18 +13,20 @@
 
 		void main()
 		{
-			gl_Position = vec4(a_position, 0, 1);
+			vec2 clipPos = vec2((a_position.x / u_resolution.x) * 2.0 - 1.0, (a_position.y / u_resolution.y) * 2.0 - 1.0);
+			gl_Position = vec4(clipPos, 0, 1);
 			v_worldPos = gl_Position.xy;
 			v_localPos = a_uv;
 		}
 	</script>
-	<script type="x-shader/x-fragment" id="frag-cicle">
+	<script type="x-shader/x-fragment" id="frag-circle">
+		uniform mediump vec2 u_resolution;
 		varying mediump vec2 v_worldPos;
 		varying mediump vec2 v_localPos;
 
 		void main()
 		{
-			highp vec4 color = vec4(0,0,0,1);
+			highp vec4 color = vec4(1,1,1,1);
 			gl_FragColor = color * ceil(1.0 - (v_localPos.x * v_localPos.x + v_localPos.y * v_localPos.y));
 		}
 	</script>
