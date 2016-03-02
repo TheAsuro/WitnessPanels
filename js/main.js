@@ -2,7 +2,6 @@
 var canvas = document.getElementById("canvas");
 var gl = canvas.getContext("experimental-webgl");
 
-// Initialize shaders
 function loadShaderFromId(id, type)
 {
 	var shader = gl.createShader(type);
@@ -41,44 +40,41 @@ function createRectangleArray(minX, minY, maxX, maxY)
     ]);
 }
 
-function createTextureCoords()
+function createTextureCoordArray()
 {
 	return new Float32Array([
-        // Front face
-		0.0, 0.0,
-		1.0, 0.0,
-		1.0, 1.0,
-		0.0, 1.0,
-
-		// Back face
-		1.0, 0.0,
-		1.0, 1.0,
-		0.0, 1.0,
-		0.0, 0.0
+		-1.0, -1.0,
+		1.0, -1.0,
+		-1.0, 1.0,
+		-1.0, 1.0,
+		1.0, -1.0,
+		1.0, 1.0
     ]);
 }
 
-function loadVertexBuffer(shaderProgram, vertArray)
+function loadFloatArrayBuffer(shaderProgram, array, varName)
 {
-	var resolutionPointer = gl.getUniformLocation(shaderProgram, "u_resolution");
-	gl.uniform2f(resolutionPointer, canvas.width, canvas.height);
-
-	var positionArrayPointer = gl.getAttribLocation(shaderProgram, "a_position");
 	var buffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, vertArray, gl.STATIC_DRAW);
-	gl.enableVertexAttribArray(positionArrayPointer);
-	gl.vertexAttribPointer(positionArrayPointer, 2, gl.FLOAT, false, 0, 0);
+	gl.bufferData(gl.ARRAY_BUFFER, array, gl.STATIC_DRAW);
 
-	return positionArrayPointer;
+	var bufferPointer = gl.getAttribLocation(shaderProgram, varName);
+	gl.enableVertexAttribArray(bufferPointer);
+	gl.vertexAttribPointer(bufferPointer, 2, gl.FLOAT, false, 0, 0);
+
+	return buffer;
 }
 
 function initialize()
 {
+	// Load shaders
 	var vertexShader = loadShaderFromId("vert", gl.VERTEX_SHADER);
 	var fragmentShader = loadShaderFromId("frag-cicle", gl.FRAGMENT_SHADER);
 	var shader = loadShaderProgram(vertexShader, fragmentShader);
-	var testobj = loadVertexBuffer(shader, createRectangleArray(-1,-1,1,1));
+
+	// Initialize objects
+	var texCoords = loadFloatArrayBuffer(shader, createTextureCoordArray(), "a_uv");
+	var worldCoords = loadFloatArrayBuffer(shader, createRectangleArray(0,0,1,1), "a_position");
 }
 
 initialize();
