@@ -3,6 +3,10 @@ var canvas = document.getElementById("canvas");
 canvas.width = document.body.clientWidth;
 canvas.height = document.body.clientHeight;
 var gl = canvas.getContext("webgl", { alpha: false });
+window.addEventListener("resize", function(event) {
+	canvas.width = document.body.clientWidth;
+	canvas.height = document.body.clientHeight;
+});
 
 var drawQueue = [];
 
