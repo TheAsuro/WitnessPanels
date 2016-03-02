@@ -10,6 +10,14 @@ window.addEventListener("resize", function(event) {
 
 var drawQueue = [];
 
+// Attribute type definitions
+ATTRIBUTE_TYPE = {
+	INT: 0,
+	FLOAT: 1,
+	FLOAT2: 2
+}
+
+// Loads shader from html and compiles it
 function loadShaderFromId(id, type)
 {
 	var shader = gl.createShader(type);
@@ -25,6 +33,7 @@ function loadShaderFromId(id, type)
 	return shader;
 }
 
+// Combines shaders into a shader program
 function loadShaderProgram(vert, frag)
 {
 	var program = gl.createProgram();
@@ -36,6 +45,7 @@ function loadShaderProgram(vert, frag)
 	return program;
 }
 
+// Returns an array with the coordinates of a rectangle
 function createRectangleArray(minX, minY, maxX, maxY)
 {
 	return new Float32Array([
@@ -48,6 +58,7 @@ function createRectangleArray(minX, minY, maxX, maxY)
     ]);
 }
 
+// Returns an array with the default texture coordinates
 function createTextureCoordArray()
 {
 	return new Float32Array([
@@ -60,6 +71,7 @@ function createTextureCoordArray()
     ]);
 }
 
+// Loads an array to a buffer on the graphics card
 function loadFloatArrayBuffer(shaderProgram, array, varName)
 {
 	var buffer = gl.createBuffer();
@@ -73,19 +85,18 @@ function loadFloatArrayBuffer(shaderProgram, array, varName)
 	return buffer;
 }
 
+// Creates a game object
 function createRectObject(vertId, fragId, x, y, width, height)
 {
 	var vs = loadShaderFromId(vertId, gl.VERTEX_SHADER);
 	var fs = loadShaderFromId(fragId, gl.FRAGMENT_SHADER);
 	var shader = loadShaderProgram(vs, fs);
 
-	var resolutionPointer = gl.getUniformLocation(shader, "u_resolution");
-	gl.uniform2f(resolutionPointer, canvas.width, canvas.height);
-
-	return {
+	var obj = {
 		vertexShader: vs,
 		fragmentShader: fs,
 		shader: shader,
+		attributes: {},
 		texCoords: loadFloatArrayBuffer(shader, createTextureCoordArray(), "a_uv"),
 		worldCoords: loadFloatArrayBuffer(shader, createRectangleArray(x, y, width + x, height + y), "a_position"),
 		x: x,
@@ -93,6 +104,13 @@ function createRectObject(vertId, fragId, x, y, width, height)
 		width: width,
 		height: height
 	}
+
+	obj.attributes.u_resolution = {
+		type: ATTRIBUTE_TYPE.FLOAT2,
+		value: [canvas.width, canvas.height]
+	};
+
+	return obj;
 }
 
 function relMouseCoords(event)
@@ -123,8 +141,11 @@ function createGameObject(vertId, fragId, x, y, width, height, clickEvent)
 	var obj = createRectObject(vertId, fragId, x, y, width, height);
 	obj.clickEvent = clickEvent;
 	drawQueue.push(obj);
+
+	return obj;
 }
 
+// Run click events for game objects
 canvas.addEventListener("click", function(event)
 {
 	var x = canvas.relMouseCoords(event).x;
@@ -143,20 +164,45 @@ canvas.addEventListener("click", function(event)
 	}
 });
 
+// Main draw loop
 function draw()
 {
+	// Clear everything before rendering
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+	// Draw every object in the queue
 	for (var key in drawQueue)
 	{
+		// Load shader
+		gl.useProgram(drawQueue[key].shader);
+
+		// Load object coordinates
 		gl.bindBuffer(gl.ARRAY_BUFFER, drawQueue[key].worldCoords);
+
+		// Supply variables to the shader
+		for (var attrName in drawQueue[key].attributes)
+		{
+			var attribPointer = gl.getUniformLocation(drawQueue[key].shader, attrName);
+			var value = drawQueue[key].attributes[attrName].value;
+
+			switch (drawQueue[key].attributes[attrName].type)
+			{
+				case ATTRIBUTE_TYPE.INT:
+					gl.uniform1i(attribPointer, value); break;
+				case ATTRIBUTE_TYPE.FLOAT:
+					gl.uniform1f(attribPointer, value); break;
+				case ATTRIBUTE_TYPE.FLOAT2:
+					gl.uniform2f(attribPointer, value[0], value[1]); break;
+				default:
+					alert("Error: unknown attribute type!");
+			}
+		}
 
 		var bufferPointer = gl.getAttribLocation(drawQueue[key].shader, "a_position");
 		gl.enableVertexAttribArray(bufferPointer);
 		gl.vertexAttribPointer(bufferPointer, 2, gl.FLOAT, false, 0, 0);
 
-		gl.useProgram(drawQueue[key].shader);
-
+		// Run shaders and draw
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 	}
 

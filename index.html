@@ -6,6 +6,7 @@
 
 	<script type="x-shader/x-vertex" id="vert">
 		uniform mediump vec2 u_resolution;
+		uniform mediump int u_select;
 		attribute vec2 a_position;
 		attribute vec2 a_uv;
 		varying mediump vec2 v_worldPos;
@@ -21,12 +22,22 @@
 	</script>
 	<script type="x-shader/x-fragment" id="frag-circle">
 		uniform mediump vec2 u_resolution;
+		uniform mediump int u_select;
 		varying mediump vec2 v_worldPos;
 		varying mediump vec2 v_localPos;
 
 		void main()
 		{
-			highp vec4 color = vec4(1,1,1,1);
+			highp vec4 color;
+			if (u_select == 0)
+			{
+				color = vec4(1,1,1,1);
+			}
+			else
+			{
+				color = vec4(1,0,1,1);
+			}
+			
 			gl_FragColor = color * ceil(1.0 - (v_localPos.x * v_localPos.x + v_localPos.y * v_localPos.y));
 		}
 	</script>
