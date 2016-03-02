@@ -107,6 +107,8 @@ function draw()
 		gl.enableVertexAttribArray(bufferPointer);
 		gl.vertexAttribPointer(bufferPointer, 2, gl.FLOAT, false, 0, 0);
 
+		gl.useProgram(drawQueue[key].shader);
+
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 	}
 

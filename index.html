@@ -30,6 +30,17 @@
 			gl_FragColor = color * ceil(1.0 - (v_localPos.x * v_localPos.x + v_localPos.y * v_localPos.y));
 		}
 	</script>
+	<script type="x-shader/x-fragment" id="frag-rect">
+		uniform mediump vec2 u_resolution;
+		varying mediump vec2 v_worldPos;
+		varying mediump vec2 v_localPos;
+
+		void main()
+		{
+			highp vec4 color = vec4(1,1,1,1);
+			gl_FragColor = color;
+		}
+	</script>
 </head>
 <body>
 	<canvas id="canvas" style="background-color: red;"></canvas>
