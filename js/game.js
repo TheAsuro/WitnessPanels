@@ -1,15 +1,79 @@
-var selectedObject;
+const gridSize = 100.0;
+const startSize = 80.0;
+const connectionThickness = 30.0;
+const connectionLength = 50.0;
+
+var DIRECTION = {
+	LEFT: 0,
+	RIGHT: 1,
+	UP: 2,
+	DOWN: 3
+}
+
+function createStart(x, y)
+{
+	var startOffset = (gridSize - startSize) / 2;
+	var obj = createGameObject("vert", "frag-circle", x * gridSize + startOffset, y * gridSize + startOffset, startSize, startSize, function() {
+		this.attributes.u_select.value = 1;
+	});
+	obj.attributes.u_select = {type: ATTRIBUTE_TYPE.INT, value: 0};
+	return obj;
+}
+
+function createConnection(x, y, direction)
+{
+	var xPos;
+	var yPos;
+	var width;
+	var height;
+
+	switch (direction)
+	{
+		case DIRECTION.LEFT:
+			xPos = x * gridSize;
+			yPos = y * gridSize + gridSize / 2.0 - connectionThickness / 2.0;
+			width = connectionLength;
+			height = connectionThickness;
+			break;
+		case DIRECTION.RIGHT:
+			xPos = x * gridSize + gridSize / 2.0;
+			yPos = y * gridSize + gridSize / 2.0 - connectionThickness / 2.0;
+			width = connectionLength;
+			height = connectionThickness;
+			break;
+		case DIRECTION.UP:
+			xPos = x * gridSize + gridSize / 2.0 - connectionThickness / 2.0;
+			yPos = y * gridSize + gridSize / 2.0;
+			width = connectionThickness;
+			height = connectionLength;
+			break;
+		case DIRECTION.DOWN:
+			xPos = x * gridSize + gridSize / 2.0 - connectionThickness / 2.0;
+			yPos = y * gridSize;
+			width = connectionThickness;
+			height = connectionLength;
+			break;
+		default:
+			alert("Error! Invalid direction.");
+	}
+	
+
+	var obj = createGameObject("vert", "frag-rect", xPos, yPos, width, height);
+}
 
 function initializeGame()
 {
 	// Initialize objects
-	var testCircle0 = createGameObject("vert", "frag-circle", 0, 0, 100, 100, function() {
-		testCircle0.attributes.u_select.value = 1;
-	});
-	testCircle0.attributes.u_select = {type: ATTRIBUTE_TYPE.INT, value: 0};
-	var testCircle1 = createGameObject("vert", "frag-circle", 100, 100, 100, 100);
-	var testCircle2 = createGameObject("vert", "frag-circle", 200, 200, 100, 100);
-	var testBox = createGameObject("vert", "frag-rect", 50, 35, 100, 30);
+	var start = createStart(0, 0);
+	var con1 = createConnection(0, 0, DIRECTION.RIGHT);
+	var con2 = createConnection(1, 0, DIRECTION.LEFT);
+	var con3 = createConnection(1, 0, DIRECTION.RIGHT);
+	var con4 = createConnection(2, 0, DIRECTION.LEFT);
+	var con5 = createConnection(2, 0, DIRECTION.UP);
+	var con6 = createConnection(2, 1, DIRECTION.DOWN);
+	var con7 = createConnection(2, 1, DIRECTION.UP);
+	var con8 = createConnection(2, 1, DIRECTION.LEFT);
+	var con9 = createConnection(2, 1, DIRECTION.RIGHT);
 }
 
 initializeGame();
