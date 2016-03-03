@@ -44,6 +44,13 @@ function loadShaderProgram(vert, frag)
 	gl.attachShader(program, vert);
 	gl.attachShader(program, frag);
 	gl.linkProgram(program);
+
+	if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+	{
+		alert(gl.getProgramInfoLog(program));
+		return null;
+	}
+
 	gl.useProgram(program);
 
 	return program;
