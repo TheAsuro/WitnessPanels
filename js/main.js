@@ -7,8 +7,12 @@ window.addEventListener("resize", function(event) {
 	canvas.width = document.body.clientWidth;
 	canvas.height = document.body.clientHeight;
 });
+canvas.addEventListener("mousemove", function(event) {
+	mousePos = canvas.relMouseCoords(event);
+});
 
 var drawQueue = [];
+var mousePos = {x: 0, y: 0};
 
 // Attribute type definitions
 ATTRIBUTE_TYPE = {
@@ -107,7 +111,7 @@ function createRectObject(vertId, fragId, x, y, width, height)
 
 	obj.attributes.u_resolution = {
 		type: ATTRIBUTE_TYPE.FLOAT2,
-		value: [canvas.width, canvas.height]
+		value: {x: canvas.width, y: canvas.height}
 	};
 
 	return obj;
@@ -136,10 +140,11 @@ function relMouseCoords(event)
 
 HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
 
-function createGameObject(vertId, fragId, x, y, width, height, clickEvent)
+function createGameObject(vertId, fragId, x, y, width, height)
 {
 	var obj = createRectObject(vertId, fragId, x, y, width, height);
-	obj.clickEvent = clickEvent;
+	obj.clickEvents = [];
+	obj.updateEvents = [];
 	drawQueue.push(obj);
 
 	return obj;
@@ -156,9 +161,9 @@ canvas.addEventListener("click", function(event)
 		if (drawQueue[key].x <= x && x <= drawQueue[key].x + drawQueue[key].width
 			&& (canvas.height - drawQueue[key].y) - drawQueue[key].height <= y && y <= (canvas.height - drawQueue[key].y))
 		{
-			if (drawQueue[key].clickEvent !== undefined)
+			for (var eventKey in drawQueue[key].clickEvents)
 			{
-				drawQueue[key].clickEvent();
+				drawQueue[key].clickEvents[eventKey]();
 			}
 		}
 	}
@@ -167,6 +172,18 @@ canvas.addEventListener("click", function(event)
 // Main draw loop
 function draw()
 {
+	// Update objects
+	for (var key in drawQueue)
+	{
+		if (drawQueue[key].updateEvents != undefined)
+		{
+			for (var updateKey in drawQueue[key].updateEvents)
+			{
+				drawQueue[key].updateEvents[updateKey]();
+			}
+		}
+	}
+
 	// Clear everything before rendering
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -192,7 +209,7 @@ function draw()
 				case ATTRIBUTE_TYPE.FLOAT:
 					gl.uniform1f(attribPointer, value); break;
 				case ATTRIBUTE_TYPE.FLOAT2:
-					gl.uniform2f(attribPointer, value[0], value[1]); break;
+					gl.uniform2f(attribPointer, value.x, value.y); break;
 				default:
 					alert("Error: unknown attribute type!");
 			}

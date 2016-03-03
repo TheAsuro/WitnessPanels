@@ -13,10 +13,16 @@ var DIRECTION = {
 function createStart(x, y)
 {
 	var startOffset = (gridSize - startSize) / 2;
-	var obj = createGameObject("vert", "frag-circle", x * gridSize + startOffset, y * gridSize + startOffset, startSize, startSize, function() {
-		this.attributes.u_select.value = 1;
-	});
+	var obj = createGameObject(
+				"vert",
+				"frag-circle",
+				x * gridSize + startOffset,
+				y * gridSize + startOffset,
+				startSize,
+				startSize
+	 );
 	obj.attributes.u_select = {type: ATTRIBUTE_TYPE.INT, value: 0};
+	obj.clickEvents.push(function() { obj.attributes.u_select.value = 1; });
 	return obj;
 }
 
@@ -59,6 +65,11 @@ function createConnection(x, y, direction)
 	
 
 	var obj = createGameObject("vert", "frag-rect", xPos, yPos, width, height);
+	obj.attributes.u_select = {type: ATTRIBUTE_TYPE.INT, value: 0};
+	obj.attributes.u_mouseDirection = {type: ATTRIBUTE_TYPE.INT, value: 1};
+	obj.attributes.u_mousePosition = {type: ATTRIBUTE_TYPE.FLOAT2, value: [0.0, 0.0]};
+	obj.updateEvents.push(function() { obj.attributes.u_mousePosition.value = mousePos; });
+	return obj;
 }
 
 function initializeGame()
