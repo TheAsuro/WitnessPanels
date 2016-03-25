@@ -21,8 +21,8 @@ function createStart(x, y)
 				startSize,
 				startSize
 	 );
-	obj.attributes.u_select = {type: ATTRIBUTE_TYPE.INT, value: 0};
-	obj.clickEvents.push(function() { obj.attributes.u_select.value = 1; });
+	obj.attributes.u_fill = {type: ATTRIBUTE_TYPE.FLOAT, value: 0.0};
+	obj.clickEvents.push(function() { obj.attributes.u_fill.value = 1; });
 	return obj;
 }
 
@@ -65,17 +65,15 @@ function createConnection(x, y, direction)
 	
 
 	var obj = createGameObject("vert", "frag-rect", xPos, yPos, width, height);
-	obj.attributes.u_select = {type: ATTRIBUTE_TYPE.INT, value: 0};
-	obj.attributes.u_mouseDirection = {type: ATTRIBUTE_TYPE.INT, value: 1};
-	obj.attributes.u_mousePosition = {type: ATTRIBUTE_TYPE.FLOAT2, value: [0.0, 0.0]};
-	obj.updateEvents.push(function() { obj.attributes.u_mousePosition.value = mousePos; });
+	obj.attributes.u_fill = {type: ATTRIBUTE_TYPE.FLOAT, value: 0.0};
+	obj.attributes.u_fillDirection = { type: ATTRIBUTE_TYPE.INT, value: direction };
+	obj.clickEvents.push(function() { obj.attributes.u_fill.value += 0.1; });
 	return obj;
 }
 
 function initializeGame()
 {
 	// Initialize objects
-	var start = createStart(0, 0);
 	var con1 = createConnection(0, 0, DIRECTION.RIGHT);
 	var con2 = createConnection(1, 0, DIRECTION.LEFT);
 	var con3 = createConnection(1, 0, DIRECTION.RIGHT);
@@ -85,6 +83,7 @@ function initializeGame()
 	var con7 = createConnection(2, 1, DIRECTION.UP);
 	var con8 = createConnection(2, 1, DIRECTION.LEFT);
 	var con9 = createConnection(2, 1, DIRECTION.RIGHT);
+	var start = createStart(0, 0);
 }
 
 initializeGame();
